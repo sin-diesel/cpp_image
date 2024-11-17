@@ -46,10 +46,15 @@ $(BUILD_DIR)/node_modules: package.json package-lock.json
 
 .PHONY: $(BUILD_DIR)/not_ready
 
+USE_CACHE_ARG = ""
+ifdef "$(CACHE_FROM)"
+	USE_CACHE_FROM_ARG = "--cache-from $(CACHE_FROM)"
+endif
+
 IMAGE_CREATE_STATUS != podman image exists $(IMAGE_NAMETAG) || echo "$(BUILD_DIR)/not_ready"
 $(BUILD_DIR)/image: $(DEPS) $(IMAGE_CREATE_STATUS)
 	podman build \
-		--cache-from '$(CACHE_FROM)' \
+		$(USE_CACHE_FROM_ARG) \
 		--label "org.opencontainers.image.ref.name=$(IMAGE_NAME)" \
 		--label "org.opencontainers.image.revision=$(VCS_REF)" \
 		--label "org.opencontainers.image.source=https://github.com/$(PROJECT)" \
